@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --accent: #00C9A7;
+  --accent-hover: #00a88c;
+  --background: #0a0a0a;
+  --surface-1: #0f0f0f;
+  --surface-2: #111111;
+  --surface-3: #141414;
+  --border-subtle: #1a1a1a;
+  --border-default: #222222;
+  --border-hover: #333333;
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1a1;
+  --text-muted: #666666;
+  --text-disabled: #555555;
+  --semantic-success: #22c55e;
+  --semantic-warning: #f59e0b;
+  --semantic-error: #ef4444;
+  --semantic-info: #3D56F0;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  background-color: #0a0a0a;
+  color: #a1a1a1;
+  font-family: Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #222222;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #333333;
+}
+
+/* Selection */
+::selection {
+  background: rgba(0, 201, 167, 0.2);
+  color: #ffffff;
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 1px solid #00C9A7;
+  outline-offset: 2px;
+}

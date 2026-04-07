@@ -1,0 +1,60 @@
+{
+  "colors": {
+    "background": "#0a0a0a",
+    "surface": {
+      "level0": "#0a0a0a",
+      "level1": "#0f0f0f",
+      "level2": "#111111",
+      "level3": "#141414"
+    },
+    "border": {
+      "subtle": "#1a1a1a",
+      "default": "#222222",
+      "hover": "#333333"
+    },
+    "text": {
+      "primary": "#ffffff",
+      "secondary": "#a1a1a1",
+      "muted": "#666666",
+      "disabled": "#555555"
+    },
+    "accent": {
+      "primary": "#00C9A7",
+      "hover": "#00a88c"
+    },
+    "semantic": {
+      "success": "#22c55e",
+      "warning": "#f59e0b",
+      "error": "#ef4444",
+      "info": "#3D56F0"
+    }
+  },
+  "typography": {
+    "headingWeight": 300,
+    "bodyWeight": 400,
+    "labelWeight": 600,
+    "labelTransform": "uppercase",
+    "labelTracking": "0.05em"
+  },
+  "components": {
+    "card": {
+      "bg": "#111111",
+      "border": "#222222",
+      "borderHover": "#333333",
+      "radius": "0px",
+      "padding": "24px"
+    },
+    "badge": {
+      "bg": "#1a1a1a",
+      "radius": "4px",
+      "fontSize": "10px",
+      "transform": "uppercase"
+    },
+    "button": {
+      "bg": "#00C9A7",
+      "text": "#0a0a0a",
+      "radius": "4px",
+      "fontWeight": 700
+    }
+  }
+}
