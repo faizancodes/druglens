@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { fdcId } = parsed.data;
-    const usdaApiKey = process.env.USDA_API_KEY ?? "DEMO_KEY";
+    const usdaApiKey = "DEMO_KEY";
     const usdaUrl = `https://api.nal.usda.gov/fdc/v1/food/${fdcId}?api_key=${usdaApiKey}`;
 
     const usdaRes = await fetch(usdaUrl, {

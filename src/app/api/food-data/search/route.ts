@@ -129,7 +129,7 @@ export async function GET(request: NextRequest) {
 
     const { q, pageSize, pageNumber, dataType, sortBy, sortOrder } = parsed.data;
 
-    const usdaApiKey = process.env.USDA_API_KEY ?? "DEMO_KEY";
+    const usdaApiKey = "DEMO_KEY";
     const usdaUrl = new URL("https://api.nal.usda.gov/fdc/v1/foods/search");
     usdaUrl.searchParams.set("api_key", usdaApiKey);
     usdaUrl.searchParams.set("query", q);
