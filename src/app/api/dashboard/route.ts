@@ -111,9 +111,10 @@ export async function GET() {
       };
     });
 
+    type DrugResult = NonNullable<Awaited<(typeof drugFetches)[number]>>;
     const results = await Promise.allSettled(drugFetches);
     const drugs = results
-      .filter((r): r is PromiseFulfilledResult<NonNullable<Awaited<ReturnType<typeof drugFetches[0]>>>> =>
+      .filter((r): r is PromiseFulfilledResult<DrugResult> =>
         r.status === "fulfilled" && r.value !== null
       )
       .map((r) => r.value)
