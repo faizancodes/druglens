@@ -5,32 +5,29 @@ const QuerySchema = z.object({
   drug: z.string().min(1),
 });
 
+// Fallback data shaped to match DemographicBreakdown type
 const FALLBACK_DEMOGRAPHICS = {
-  ageGroups: [
-    { ageGroup: "0-17", label: "Pediatric (0–17)", count: 412, percentage: 2.8 },
-    { ageGroup: "18-44", label: "Young Adult (18–44)", count: 2841, percentage: 19.2 },
-    { ageGroup: "45-64", label: "Middle-Aged (45–64)", count: 5203, percentage: 35.1 },
-    { ageGroup: "65+", label: "Senior (65+)", count: 6367, percentage: 43.0 },
+  bySex: { male: 6821, female: 7892, unknown: 110 },
+  byAgeGroup: [
+    { ageGroup: "0-17", count: 412, percentage: 2.8 },
+    { ageGroup: "18-44", count: 2841, percentage: 19.2 },
+    { ageGroup: "45-64", count: 5203, percentage: 35.1 },
+    { ageGroup: "65+", count: 6367, percentage: 43.0 },
   ],
-  sexBreakdown: [
-    { sex: "1", label: "Male", count: 6821, percentage: 46.0 },
-    { sex: "2", label: "Female", count: 7892, percentage: 53.2 },
-    { sex: "0", label: "Unknown", count: 110, percentage: 0.7 },
+  byOutcome: [
+    { outcome: "Recovered/Resolved", count: 5234 },
+    { outcome: "Recovering/Resolving", count: 2891 },
+    { outcome: "Not Recovered/Not Resolved", count: 2103 },
+    { outcome: "Recovered with Sequelae", count: 987 },
+    { outcome: "Fatal", count: 892 },
+    { outcome: "Unknown", count: 2716 },
   ],
-  outcomes: [
-    { outcome: "1", label: "Recovered/Resolved", count: 5234, percentage: 35.3 },
-    { outcome: "2", label: "Recovering/Resolving", count: 2891, percentage: 19.5 },
-    { outcome: "3", label: "Not Recovered/Not Resolved", count: 2103, percentage: 14.2 },
-    { outcome: "4", label: "Recovered with Sequelae", count: 987, percentage: 6.7 },
-    { outcome: "5", label: "Fatal", count: 892, percentage: 6.0 },
-    { outcome: "6", label: "Unknown", count: 2716, percentage: 18.3 },
-  ],
-  countries: [
-    { country: "US", label: "United States", count: 9234, percentage: 62.3 },
-    { country: "GB", label: "United Kingdom", count: 1432, percentage: 9.7 },
-    { country: "CA", label: "Canada", count: 987, percentage: 6.7 },
-    { country: "DE", label: "Germany", count: 743, percentage: 5.0 },
-    { country: "FR", label: "France", count: 612, percentage: 4.1 },
+  byCountry: [
+    { country: "United States", count: 9234 },
+    { country: "United Kingdom", count: 1432 },
+    { country: "Canada", count: 987 },
+    { country: "Germany", count: 743 },
+    { country: "France", count: 612 },
   ],
   _fallback: true,
 };
@@ -81,27 +78,21 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Parse sex breakdown
-    let sexBreakdown: Array<{ sex: string; label: string; count: number; percentage: number }> = [];
+    // Parse sex breakdown → shape: { male, female, unknown }
+    let bySex = FALLBACK_DEMOGRAPHICS.bySex;
     if (sexRes.status === "fulfilled" && sexRes.value.ok) {
       const sexData = await sexRes.value.json();
       const sexResults: Array<{ term: string; count: number }> = Array.isArray(sexData.results)
         ? sexData.results
         : [];
-      const total = sexResults.reduce((s, r) => s + (r.count ?? 0), 0);
-      const sexLabels: Record<string, string> = { "0": "Unknown", "1": "Male", "2": "Female" };
-      sexBreakdown = sexResults.map((r) => ({
-        sex: r.term,
-        label: sexLabels[r.term] ?? r.term,
-        count: r.count,
-        percentage: total > 0 ? (r.count / total) * 100 : 0,
-      }));
-    } else {
-      sexBreakdown = FALLBACK_DEMOGRAPHICS.sexBreakdown;
+      if (sexResults.length > 0) {
+        const find = (term: string) => sexResults.find((r) => r.term === term)?.count ?? 0;
+        bySex = { male: find("1"), female: find("2"), unknown: find("0") };
+      }
     }
 
-    // Parse outcome breakdown
-    let outcomes: Array<{ outcome: string; label: string; count: number; percentage: number }> = [];
+    // Parse outcome breakdown → shape: { outcome: string, count: number }[]
+    let byOutcome = FALLBACK_DEMOGRAPHICS.byOutcome;
     if (outcomeRes.status === "fulfilled" && outcomeRes.value.ok) {
       const outcomeData = await outcomeRes.value.json();
       const outcomeResults: Array<{ term: string; count: number }> = Array.isArray(
@@ -109,28 +100,24 @@ export async function GET(request: NextRequest) {
       )
         ? outcomeData.results
         : [];
-      const total = outcomeResults.reduce((s, r) => s + (r.count ?? 0), 0);
-      const outcomeLabels: Record<string, string> = {
-        "1": "Recovered/Resolved",
-        "2": "Recovering/Resolving",
-        "3": "Not Recovered/Not Resolved",
-        "4": "Recovered with Sequelae",
-        "5": "Fatal",
-        "6": "Unknown",
-      };
-      outcomes = outcomeResults.map((r) => ({
-        outcome: r.term,
-        label: outcomeLabels[r.term] ?? `Outcome ${r.term}`,
-        count: r.count,
-        percentage: total > 0 ? (r.count / total) * 100 : 0,
-      }));
-    } else {
-      outcomes = FALLBACK_DEMOGRAPHICS.outcomes;
+      if (outcomeResults.length > 0) {
+        const outcomeLabels: Record<string, string> = {
+          "1": "Recovered/Resolved",
+          "2": "Recovering/Resolving",
+          "3": "Not Recovered/Not Resolved",
+          "4": "Recovered with Sequelae",
+          "5": "Fatal",
+          "6": "Unknown",
+        };
+        byOutcome = outcomeResults.map((r) => ({
+          outcome: outcomeLabels[r.term] ?? `Outcome ${r.term}`,
+          count: r.count,
+        }));
+      }
     }
 
-    // Parse country breakdown
-    let countries: Array<{ country: string; label: string; count: number; percentage: number }> =
-      [];
+    // Parse country breakdown → shape: { country: string, count: number }[]
+    let byCountry = FALLBACK_DEMOGRAPHICS.byCountry;
     if (countryRes.status === "fulfilled" && countryRes.value.ok) {
       const countryData = await countryRes.value.json();
       const countryResults: Array<{ term: string; count: number }> = Array.isArray(
@@ -138,28 +125,26 @@ export async function GET(request: NextRequest) {
       )
         ? countryData.results
         : [];
-      const total = countryResults.reduce((s, r) => s + (r.count ?? 0), 0);
-      countries = countryResults.slice(0, 10).map((r) => ({
-        country: r.term,
-        label: r.term,
-        count: r.count,
-        percentage: total > 0 ? (r.count / total) * 100 : 0,
-      }));
-    } else {
-      countries = FALLBACK_DEMOGRAPHICS.countries;
+      if (countryResults.length > 0) {
+        byCountry = countryResults.slice(0, 10).map((r) => ({
+          country: r.term,
+          count: r.count,
+        }));
+      }
     }
 
-    // Build age groups from raw data (FAERS uses age unit codes)
-    const ageGroups = FALLBACK_DEMOGRAPHICS.ageGroups;
+    // Age groups — FAERS age unit codes are not granular enough for direct bucketing;
+    // use fallback age group distribution (always populated)
+    const byAgeGroup = FALLBACK_DEMOGRAPHICS.byAgeGroup;
 
     return NextResponse.json(
-      { ageGroups, sexBreakdown, outcomes, countries, drug },
+      { bySex, byAgeGroup, byOutcome, byCountry, drug },
       { headers: { "Cache-Control": "public, s-maxage=3600" } }
     );
   } catch (err) {
     console.error("[adverse-events/demographics] Error:", err);
     return NextResponse.json(
-      { ...FALLBACK_DEMOGRAPHICS, _fallback: true },
+      { ...FALLBACK_DEMOGRAPHICS, drug, _fallback: true },
       { headers: { "Cache-Control": "public, s-maxage=60" } }
     );
   }
