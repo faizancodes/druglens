@@ -33,6 +33,7 @@ const FALLBACK_DEMOGRAPHICS = {
 };
 
 export async function GET(request: NextRequest) {
+  let drug = "";
   try {
     const { searchParams } = new URL(request.url);
     const parsed = QuerySchema.safeParse(Object.fromEntries(searchParams));
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { drug } = parsed.data;
+    drug = parsed.data.drug;
     const baseSearch = `patient.drug.medicinalproduct:"${drug.toUpperCase()}"`;
 
     // Fetch age, sex, outcome, and country counts in parallel
