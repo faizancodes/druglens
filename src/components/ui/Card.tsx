@@ -40,13 +40,35 @@ export function Card({
 export function CardHeader({
   className,
   children,
+  title,
+  subtitle,
+  actions,
 }: {
   className?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  title?: string;
+  subtitle?: string;
+  actions?: React.ReactNode;
 }) {
   return (
     <div className={cn("px-6 py-4 border-b border-[#222222]", className)}>
-      {children}
+      {(title || subtitle || actions) ? (
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            {title && (
+              <h3 className="text-xs font-semibold uppercase tracking-[0.05em] text-[#a1a1a1]">
+                {title}
+              </h3>
+            )}
+            {subtitle && (
+              <p className="text-xs text-[#666666] mt-0.5">{subtitle}</p>
+            )}
+          </div>
+          {actions && <div className="shrink-0">{actions}</div>}
+        </div>
+      ) : (
+        children
+      )}
     </div>
   );
 }
